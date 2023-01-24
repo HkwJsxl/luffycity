@@ -23,23 +23,27 @@
 
       <div class="right-part">
         <div>
-          <span>登录</span>
+          <span @click="pull_login">登录</span>
           <span class="line">|</span>
           <span>注册</span>
         </div>
       </div>
     </div>
+    <Login v-if="is_login" @close="close_login"/>
+    <!--is_login是True就显示，false就不显示-->
   </div>
 
 </template>
 
 <script>
+import Login from "@/components/Login";
 
 export default {
   name: "Header",
   data() {
     return {
       url_path: sessionStorage.url_path || '/',
+      is_login: false,
     }
   },
   methods: {
@@ -50,10 +54,19 @@ export default {
       }
       sessionStorage.url_path = url_path;
     },
+    pull_login() {
+      this.is_login = true
+    },
+    close_login() {
+      this.is_login = false
+    },
   },
   created() {
     sessionStorage.url_path = this.$route.path;
     this.url_path = this.$route.path;
+  },
+  components: {
+    Login,
   }
 }
 </script>
