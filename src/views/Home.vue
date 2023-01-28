@@ -1,5 +1,5 @@
 <template>
-  <div className="home">
+  <div>
     <Header/>
     <Banner/>
     <div>
@@ -21,11 +21,7 @@ export default {
     return {}
   },
   created() {
-    this.$axios.get(this.$settings.base_url + '/home/home/').then(response => {
-      console.log(response.data)  //response.data才是真正后台返回的数据
-    }).catch(errors => {
-      console.log(errors)
-    })
+
   },
   components: {
     Header,

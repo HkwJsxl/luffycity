@@ -2,7 +2,7 @@
 
   <div id="banner">
     <el-carousel height="400px">
-      <el-carousel-item v-for="(item, index) in banner_list" :key="index">
+      <el-carousel-item v-for="(item, index) in banner_list" :key="index" class="el-carousel__item">
         <router-link :to="item.link">
           <img :src="item.image" :alt="item.name">
         </router-link>
@@ -23,7 +23,6 @@ export default {
   created() {
     //当banner组件一创建，就向后台发请求，拿回轮播图数据
     this.$axios.get(this.$settings.base_url + '/home/banner/').then(response => {
-      console.log('res_data', response.data)
       this.banner_list = response.data;
     }).catch(() => {
 

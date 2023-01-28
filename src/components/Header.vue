@@ -22,21 +22,29 @@
       </ul>
 
       <div class="right-part">
-        <div>
-          <span @click="pull_login">登录</span>
+        <div v-if="!this.username">
+          <span @click="put_login">登录</span>
           <span class="line">|</span>
-          <span>注册</span>
+          <span @click="put_register">注册</span>
+          <Login v-if="is_login" @close="close_login" @go="put_register"/>
+          <Register v-if="is_register" @close="close_register" @go="put_login"/>
+        </div>
+        <div v-else>
+          <span>{{ this.username }}</span>
+          <span class="line">|</span>
+          <span @click="logout">注销</span>
         </div>
       </div>
+      <Login v-if="is_login" @close="close_login" @go="put_register" @login_success="login_success"/>
+      <Register v-if="is_register" @close="close_register" @go="put_login"/>
     </div>
-    <Login v-if="is_login" @close="close_login"/>
-    <!--is_login是True就显示，false就不显示-->
   </div>
 
 </template>
 
 <script>
 import Login from "@/components/Login";
+import Register from "@/components/Register";
 
 export default {
   name: "Header",
@@ -44,6 +52,9 @@ export default {
     return {
       url_path: sessionStorage.url_path || '/',
       is_login: false,
+      is_register: false,
+      token: '',
+      username: '',
     }
   },
   methods: {
@@ -54,19 +65,41 @@ export default {
       }
       sessionStorage.url_path = url_path;
     },
-    pull_login() {
-      this.is_login = true
+    put_login() {
+      this.is_login = true;
+      this.is_register = false;
+    },
+    put_register() {
+      this.is_login = false;
+      this.is_register = true;
     },
     close_login() {
-      this.is_login = false
+      this.is_login = false;
+    },
+    close_register() {
+      this.is_register = false;
+    },
+    logout() {
+      this.$cookies.remove('token');
+      this.$cookies.remove('username');
+      this.token = '';
+      this.username = '';
+    },
+    login_success() {
+      this.token = this.$cookies.get('token');
+      this.username = this.$cookies.get('username');
     },
   },
   created() {
     sessionStorage.url_path = this.$route.path;
     this.url_path = this.$route.path;
+
+    this.token = this.$cookies.get('token');
+    this.username = this.$cookies.get('username');
   },
   components: {
     Login,
+    Register,
   }
 }
 </script>
