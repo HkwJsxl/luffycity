@@ -22,7 +22,13 @@ Vue.prototype.$settings = settings;
 Vue.prototype.$axios = axios;
 Vue.prototype.$cookies = cookies;
 
-Vue.use(ElementUI);
+// vue-video播放器
+// import 'video.js/dist/video-js.css';
+// import VideoPlayer from 'vue-video-player'
+require('video.js/dist/video-js.css');
+require('vue-video-player/src/custom-theme.css');
+import VideoPlayer from 'vue-video-player'
+Vue.use(ElementUI, VideoPlayer, );
 
 new Vue({
     router,

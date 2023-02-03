@@ -23,9 +23,9 @@ export default {
   created() {
     //当banner组件一创建，就向后台发请求，拿回轮播图数据
     this.$axios.get(this.$settings.base_url + '/home/banner/').then(response => {
-      this.banner_list = response.data;
-    }).catch(() => {
-
+      this.banner_list = response.data.data;
+    }).catch(errors => {
+      console.log(errors);
     })
   },
 
