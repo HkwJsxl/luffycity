@@ -35,6 +35,17 @@
           <span @click="logout">注销</span>
         </div>
       </div>
+
+      <form class="search">
+        <div class="tips" v-if="is_search_tip">
+          <span @click="search_action('Python')">Python</span>
+          <span @click="search_action('Linux')">Linux</span>
+        </div>
+        <input type="text" :placeholder="search_placeholder" @focus="on_search" @blur="off_search" v-model="search_word">
+        <button type="button" class="glyphicon glyphicon-search" @click="search_action(search_word)"></button>
+<!--        <el-button type="button" icon="el-icon-search" @click="search_action(search_word)"></el-button>-->
+      </form>
+
       <Login v-if="is_login" @close="close_login" @go="put_register" @login_success="login_success"/>
       <Register v-if="is_register" @close="close_register" @go="put_login"/>
     </div>
@@ -55,6 +66,10 @@ export default {
       is_register: false,
       token: '',
       username: '',
+
+      is_search_tip: true,
+      search_placeholder: '',
+      search_word: ''
     }
   },
   methods: {
@@ -88,6 +103,25 @@ export default {
     login_success() {
       this.token = this.$cookies.get('token');
       this.username = this.$cookies.get('username');
+    },
+
+    search_action(search_word) {
+      if (!search_word) {
+        this.$message('请输入要搜索的内容');
+        return
+      }
+      if (search_word !== this.$route.query.word) {
+        this.$router.push(`/course/search?word=${search_word}`);
+      }
+      this.search_word = '';
+    },
+    on_search() {
+      this.search_placeholder = '请输入想搜索的课程';
+      this.is_search_tip = false;
+    },
+    off_search() {
+      this.search_placeholder = '';
+      this.is_search_tip = true;
     },
   },
   created() {
@@ -187,5 +221,53 @@ export default {
 .right-part span {
   line-height: 68px;
   cursor: pointer;
+}
+
+.search {
+  float: right;
+  position: relative;
+  margin-top: 22px;
+  margin-right: 10px;
+}
+
+.search input, .search button {
+  border: none;
+  outline: none;
+  background-color: white;
+}
+
+.search input {
+  border-bottom: 1px solid #eeeeee;
+}
+
+.search input:focus {
+  border-bottom-color: orange;
+}
+
+.search input:focus + button {
+  color: orange;
+}
+
+.search .tips {
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+}
+
+.search .tips span {
+  border-radius: 11px;
+  background-color: #eee;
+  line-height: 22px;
+  display: inline-block;
+  padding: 0 7px;
+  margin-right: 3px;
+  cursor: pointer;
+  color: #aaa;
+  font-size: 14px;
+
+}
+
+.search .tips span:hover {
+  color: orange;
 }
 </style>

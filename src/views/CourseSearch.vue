@@ -1,54 +1,26 @@
 <template>
-  <div class="course">
-    <Header></Header>
+  <div class="search-course course">
+    <Header/>
+
+    <!-- 课程列表 -->
     <div class="main">
-      <!-- 筛选条件 -->
-      <div class="condition">
-        <ul class="cate-list">
-          <li class="title">课程分类:</li>
-          <li :class="filter.category===0?'this':''" @click="filter.category=0">全部</li>
-          <li :class="filter.category===category.id?'this':''" v-for="category in category_list"
-              @click="filter.category=category.id" :key="category.name">{{ category.name }}
-          </li>
-        </ul>
-
-        <div class="ordering">
-          <ul>
-            <li class="title">筛&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选:</li>
-            <li class="default" :class="(filter.ordering==='id' || filter.ordering==='-id')?'this':''"
-                @click="filter.ordering='-id'">默认
-            </li>
-            <li class="hot" :class="(filter.ordering==='students' || filter.ordering==='-students')?'this':''"
-                @click="filter.ordering=(filter.ordering==='-students'?'students':'-students')">人气
-            </li>
-            <li class="price"
-                :class="filter.ordering==='price'?'price_up this':(filter.ordering==='-price'?'price_down this':'')"
-                @click="filter.ordering=(filter.ordering==='-price'?'price':'-price')">价格
-            </li>
-          </ul>
-          <p class="condition-result">共{{ course_total }}个课程</p>
-        </div>
-
-      </div>
-      <!-- 课程列表 -->
-      <div class="course-list">
+      <div v-if="course_list.length > 0" class="course-list">
         <div class="course-item" v-for="course in course_list" :key="course.name">
           <div class="course-image">
             <img :src="course.course_image" alt="">
           </div>
           <div class="course-info">
             <h3>
-              <router-link :to="'/free/detail/'+course.id">{{ course.name }}</router-link>
-              <span><img src="@/assets/img/avatar1.svg" alt="">{{ course.students }}人已加入学习</span></h3>
-            <p class="teacher-info">
-              {{ course.teacher.name }} {{ course.teacher.title }} {{ course.teacher.signature }}
-              <span
-                  v-if="course.sections>course.publish_sections">共{{ course.sections }}课时/已更新{{ course.publish_sections }}课时</span>
-              <span v-else>共{{ course.sections }}课时/更新完成</span>
+              <router-link :to="'/free/detail/'+course.id">{{course.name}}</router-link>
+              <span><img src="@/assets/img/avatar1.svg" alt="">{{course.students}}人已加入学习</span></h3>
+            <p class="teather-info">
+              {{course.teacher.name}} {{course.teacher.title}} {{course.teacher.signature}}
+              <span v-if="course.sections>course.publish_sections">共{{course.sections}}课时/已更新{{course.publish_sections}}课时</span>
+              <span v-else>共{{course.sections}}课时/更新完成</span>
             </p>
             <ul class="section-list">
               <li v-for="(section, key) in course.section_list" :key="section.name"><span
-                  class="section-title">0{{ key + 1 }}  |  {{ section.name }}</span>
+                  class="section-title">0{{key+1}}  |  {{section.name}}</span>
                 <span class="free" v-if="section.free_trail">免费</span></li>
             </ul>
             <div class="pay-box">
@@ -63,7 +35,9 @@
           </div>
         </div>
       </div>
-      <!-- 分页 -->
+      <div v-else style="text-align: center; line-height: 60px">
+        没有搜索结果
+      </div>
       <div class="course_pagination block">
         <el-pagination
             @size-change="handleSizeChange"
@@ -76,23 +50,23 @@
         </el-pagination>
       </div>
     </div>
-    <Footer></Footer>
   </div>
 </template>
 
 <script>
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
+import Header from '../components/Header'
 
 export default {
-  name: "FreeCourse",
+  name: "SearchCourse",
+  components: {
+    Header,
+  },
   data() {
     return {
-      category_list: [], // 课程分类列表
-      course_list: [],   // 课程列表
-      course_total: 0,   // 当前课程的总数量
+      course_list: [],
+      course_total: 0,
       filter: {
-        category: 0, // 当前用户选择的课程分类，刚进入页面默认为全部，值为0
+        search: '',
         ordering: "-id",    // 数据的排序方式，默认值是-id，表示对于id进行降序排列
         limit: 2,       // 单页数据量
         latest_id: 3,
@@ -100,17 +74,11 @@ export default {
     }
   },
   created() {
-    this.get_category();
-    this.get_course();
-  },
-  components: {
-    Header,
-    Footer,
+    this.get_course()
   },
   watch: {
-    "filter.category": function () {
-      this.filter.latest_id = 3;
-      this.get_course();
+    '$route.query' () {
+      this.get_course()
     },
     "filter.ordering": function () {
       this.get_course();
@@ -132,26 +100,10 @@ export default {
       // 页码发生变化时执行的方法
       this.filter.latest_id = val + 1;
     },
-    get_category() {
-      // 获取课程分类信息
-      this.$axios.get(`${this.$settings.base_url}/course/category/`).then(response => {
-        this.category_list = response.data.data;
-        // console.log('category_list', this.category_list);
-      }).catch(() => {
-        this.$message({
-          message: "获取课程分类信息有误，请联系客服工作人员",
-        })
-      })
-    },
     get_course() {
-      // 排序
       let filters = {
         ordering: this.filter.ordering, // 排序
       };
-      // 判决是否进行分类课程的展示
-      if (this.filter.category > 0) {
-        filters.category = this.filter.category;
-      }
 
       // 设置单页数据量
       if (this.filter.limit > 0) {
@@ -167,14 +119,17 @@ export default {
         filters.latest_id = 3;
       }
 
+      // 获取搜索的关键字
+      this.filter.search = this.$route.query.word || this.$route.query.wd;
+
       // 获取课程列表信息
-      this.$axios.get(`${this.$settings.base_url}/course/`, {
-        params: filters
+      this.$axios.get(`${this.$settings.base_url}/course/search/`, {
+        params: this.filter
       }).then(response => {
+        // 如果后台不分页，数据在response.data中；如果后台分页，数据在response.data.results中
         this.course_list = response.data.data;
-        // console.log('course_list', this.course_list);
-        this.course_total = this.course_list.length;
-        // console.log('course_total', this.course_total);
+        this.course_total = response.data.count;
+        console.log('course_list', this.course_list);
       }).catch(() => {
         this.$message({
           message: "获取课程信息有误，请联系客服工作人员"
@@ -385,7 +340,7 @@ export default {
   margin-right: 7px;
 }
 
-.course-item .course-info .teacher-info {
+.course-item .course-info .teather-info {
   font-size: 14px;
   color: #9b9b9b;
   margin-bottom: 14px;
@@ -394,7 +349,7 @@ export default {
   border-bottom-color: rgba(51, 51, 51, .05);
 }
 
-.course-item .course-info .teacher-info span {
+.course-item .course-info .teather-info span {
   float: right;
 }
 

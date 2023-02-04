@@ -18,6 +18,10 @@ import 'element-ui/lib/theme-chalk/index.css';
 // cookies配置
 import cookies from 'vue-cookies'
 
+// bootstrap配置
+import 'bootstrap'
+import 'bootstrap/dist/css/bootstrap.min.css'
+
 Vue.prototype.$settings = settings;
 Vue.prototype.$axios = axios;
 Vue.prototype.$cookies = cookies;
@@ -29,6 +33,7 @@ require('video.js/dist/video-js.css');
 require('vue-video-player/src/custom-theme.css');
 import VideoPlayer from 'vue-video-player'
 Vue.use(ElementUI, VideoPlayer, );
+
 
 new Vue({
     router,
