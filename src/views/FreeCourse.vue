@@ -43,7 +43,9 @@
             <p class="teacher-info">
               {{ course.teacher.name }} {{ course.teacher.title }} {{ course.teacher.signature }}
               <span
-                  v-if="course.sections>course.publish_sections">共{{ course.sections }}课时/已更新{{ course.publish_sections }}课时</span>
+                  v-if="course.sections>course.publish_sections">共{{
+                  course.sections
+                }}课时/已更新{{ course.publish_sections }}课时</span>
               <span v-else>共{{ course.sections }}课时/更新完成</span>
             </p>
             <ul class="section-list">
@@ -58,7 +60,7 @@
                 <span class="original-price">原价：{{ course.price }}元</span>
               </div>
               <span v-else class="discount-price">￥{{ course.price }}元</span>
-              <span class="buy-now">立即购买</span>
+              <span class="buy-now" @click="buy_now(course)">立即购买</span>
             </div>
           </div>
         </div>
@@ -180,7 +182,34 @@ export default {
           message: "获取课程信息有误，请联系客服工作人员"
         })
       })
-    }
+    },
+    buy_now(course) {
+      let token = this.$cookies.get('token');
+      if (!token) {
+        this.$message({
+          message: '请先登录.'
+        })
+        return false;
+      }
+      this.$axios({
+        url: `${this.$settings.base_url}/order/pay/`,
+        method: 'post',
+        data: {
+          'subject': course.name,
+          'total_amount': course.price,
+          'pay_type': 1,
+          'courses': [course.id,],
+        },
+        headers: {'token': token},
+      }).then(response => {
+        console.log(response.data);
+        if (response.data.code===0){
+          open(response.data.data.pay_url, '_self');
+        }
+      }).catch(errors => {
+        console.log(errors);
+      })
+    },
   }
 }
 </script>

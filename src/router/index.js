@@ -6,6 +6,7 @@ import FreeCourse from '@/views/FreeCourse.vue'
 import ActualCourse from '@/views/ActualCourse.vue'
 import FreeCourseDetail from "@/views/FreeCourseDetail.vue";
 import CourseSearch from "@/views/CourseSearch.vue";
+import PaySuccess from "@/views/PaySuccess.vue";
 Vue.use(VueRouter)
 
 const routes = [
@@ -36,6 +37,11 @@ const routes = [
         path: '/course/search',
         name: 'CourseSearch',
         component: CourseSearch,
+    },
+    {
+        path: '/pay/success',
+        name: 'PaySuccess',
+        component: PaySuccess
     },
 ]
 
